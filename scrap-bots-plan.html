@@ -1,0 +1,419 @@
+<title>Scrap Bots Simulator Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column of numbered build-plan sections, a sticky jump bar on top, wide tables scroll inside their own frames. */
+:root{
+  --bg:#eef1f2; --surface:#ffffff; --ink:#16242b; --muted:#56666e; --line:#cfd8dc;
+  --hazard:#f2b705; --hazard-ink:#221a00; --teal:#12696b; --tint:#e0e8ea;
+  --display:"Chakra Petch","Trebuchet MS",sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#111a1e; --surface:#19252b; --ink:#e4ecee; --muted:#93a4ab; --line:#2e3d44;
+    --hazard:#f2b705; --hazard-ink:#221a00; --teal:#5fc4c2; --tint:#22313a;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#111a1e; --surface:#19252b; --ink:#e4ecee; --muted:#93a4ab; --line:#2e3d44;
+  --hazard:#f2b705; --hazard-ink:#221a00; --teal:#5fc4c2; --tint:#22313a;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6}
+.wrap{max-width:960px;margin:0 auto;padding-inline:20px;padding-block:32px 72px;display:flex;flex-direction:column;gap:44px}
+header.top{display:flex;flex-direction:column;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:24px}
+.tag{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(32px,6vw,52px);line-height:1.05;margin:0;text-wrap:balance}
+h1 span{background:var(--hazard);color:var(--hazard-ink);padding:0 .18em}
+.lede{max-width:65ch;margin:0;font-size:18px}
+nav.jump{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);z-index:2;margin-top:-28px}
+nav.jump div{max-width:960px;margin:0 auto;padding:10px 20px;display:flex;gap:6px 16px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+a{color:var(--teal)}
+a:focus-visible,input:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+section{display:flex;flex-direction:column;gap:16px}
+h2{font-family:var(--display);font-weight:600;font-size:26px;line-height:1.2;margin:0;text-wrap:balance;display:flex;gap:12px;align-items:baseline}
+h2 .n{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--hazard-ink);background:var(--hazard);padding:1px 7px}
+h3{font-family:var(--display);font-weight:600;font-size:18px;margin:8px 0 0}
+p,ul,ol{margin:0;max-width:68ch}
+ul,ol{padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.facts div{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.facts b{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.loop{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;list-style:none;padding:0;max-width:none;flex-direction:row}
+.loop li{flex:1 1 130px;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--hazard);padding:10px 12px;font-size:14.5px;line-height:1.4}
+.loop li b{display:block;font-family:var(--display);font-size:16px}
+.scroll{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--tint);white-space:nowrap}
+td.r,th.r{text-align:right;white-space:nowrap}
+code,pre{font-family:var(--mono);font-size:13.5px}
+code{background:var(--tint);padding:1px 5px}
+pre{margin:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line);overflow-x:auto;line-height:1.5}
+.note{border-left:4px solid var(--hazard);background:var(--tint);padding:12px 16px;max-width:68ch}
+.checks{list-style:none;padding:0;gap:4px;max-width:none}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:4px 0;cursor:pointer}
+.checks input{margin-top:5px;accent-color:var(--teal);flex:none}
+.checks input:checked+span{color:var(--muted);text-decoration:line-through}
+.week{display:grid;grid-template-columns:110px 1fr;gap:6px 18px;padding:14px 0;border-top:1px solid var(--line)}
+.week>b{font-family:var(--mono);font-weight:500;font-size:13px;color:var(--muted);padding-top:3px}
+.week h3{margin:0 0 4px}
+@media (max-width:560px){.week{grid-template-columns:1fr}}
+footer{font-size:13.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="tag">Roblox game plan · draft 1 · 1 Oct 2026 · nothing built yet</div>
+  <h1><span>Scrap Bots</span> Simulator</h1>
+  <p class="lede">A collect-and-upgrade simulator set in a scrapyard. Players pick up scrap, sell it, buy better tools, and build robot helpers that collect for them. This page is the full plan to review before any work starts in Roblox Studio.</p>
+</header>
+</div>
+
+<nav class="jump" aria-label="Sections"><div>
+  <a href="#concept">1 Concept</a><a href="#loop">2 Loop</a><a href="#content">3 Content</a><a href="#first10">4 First 10 min</a><a href="#money">5 Monetisation</a><a href="#tech">6 Tech</a><a href="#roadmap">7 Roadmap</a><a href="#launch">8 Launch</a><a href="#numbers">9 Numbers</a><a href="#risks">10 Risks</a><a href="#decide">11 Decisions</a>
+</div></nav>
+
+<div class="wrap" style="padding-top:36px">
+
+<section id="concept">
+  <h2><span class="n">1</span>Concept</h2>
+  <p>The simulator genre has the best-understood way to earn on Roblox, and new content is cheap to add. Most simulators use pets, mining or fishing. A scrapyard with robots gives the same loop a look that is less used, and robots replace pets as the thing players collect and show off.</p>
+  <div class="facts">
+    <div><b>Genre</b>Simulator with light tycoon elements</div>
+    <div><b>Audience</b>Ages 8 to 14, mostly on phones</div>
+    <div><b>Session target</b>15 to 25 minutes</div>
+    <div><b>Server size</b>12 players</div>
+    <div><b>Team assumed</b>1 developer, 10 to 15 hours a week</div>
+    <div><b>Time to launch</b>8 weeks</div>
+  </div>
+  <p><strong>The one-line pitch for the game page:</strong> "Collect scrap, build robots, take over the junkyard."</p>
+  <p>The name is a working title. Check it is not taken on Roblox before making the icon.</p>
+</section>
+
+<section id="loop">
+  <h2><span class="n">2</span>Core loop</h2>
+  <ol class="loop">
+    <li><b>Collect</b>Tap scrap piles until the backpack is full.</li>
+    <li><b>Sell</b>Walk to the crusher and turn scrap into coins.</li>
+    <li><b>Upgrade</b>Buy a better tool and a bigger backpack.</li>
+    <li><b>Build bots</b>Open crates to get robots that collect for you.</li>
+    <li><b>Unlock</b>Pay coins to open the next zone with richer scrap.</li>
+    <li><b>Rebirth</b>Reset progress for a permanent coin multiplier.</li>
+  </ol>
+  <p>One lap of collect, sell and upgrade should take under 90 seconds in the first zone. Every lap must end with the player able to afford something, or seeing how close they are to it.</p>
+  <h3>Three layers of goals</h3>
+  <ul>
+    <li><strong>Seconds:</strong> fill the backpack. Numbers pop up on every tap.</li>
+    <li><strong>Minutes:</strong> afford the next tool or crate.</li>
+    <li><strong>Hours and days:</strong> unlock the next zone, complete the bot index, climb the rebirth leaderboard.</li>
+  </ul>
+</section>
+
+<section id="content">
+  <h2><span class="n">3</span>Content and economy</h2>
+  <p>All values are starting points for balancing. They live in config files so they can be tuned without touching code.</p>
+
+  <h3>Zones</h3>
+  <div class="scroll"><table>
+    <tr><th>Zone</th><th class="r">Unlock cost</th><th class="r">Scrap value</th><th>In version 1</th></tr>
+    <tr><td>Backyard Heap</td><td class="r">Free</td><td class="r">1x</td><td>Yes</td></tr>
+    <tr><td>Auto Graveyard</td><td class="r">5,000</td><td class="r">4x</td><td>Yes</td></tr>
+    <tr><td>Factory Ruins</td><td class="r">75,000</td><td class="r">15x</td><td>Yes</td></tr>
+    <tr><td>Shipbreaker Docks</td><td class="r">1,000,000</td><td class="r">60x</td><td>Yes</td></tr>
+    <tr><td>Rocket Boneyard</td><td class="r">15,000,000</td><td class="r">250x</td><td>First update</td></tr>
+  </table></div>
+
+  <h3>Tools and backpacks</h3>
+  <div class="scroll"><table>
+    <tr><th>Tool</th><th class="r">Cost</th><th class="r">Scrap per tap</th><th>Backpack</th><th class="r">Cost</th><th class="r">Capacity</th></tr>
+    <tr><td>Magnet Glove</td><td class="r">Free</td><td class="r">1</td><td>Lunch Sack</td><td class="r">Free</td><td class="r">25</td></tr>
+    <tr><td>Crowbar</td><td class="r">250</td><td class="r">3</td><td>Tool Crate</td><td class="r">400</td><td class="r">100</td></tr>
+    <tr><td>Grabber Arm</td><td class="r">5,000</td><td class="r">10</td><td>Oil Drum</td><td class="r">8,000</td><td class="r">500</td></tr>
+    <tr><td>Plasma Cutter</td><td class="r">100,000</td><td class="r">40</td><td>Cargo Pod</td><td class="r">150,000</td><td class="r">2,500</td></tr>
+    <tr><td>Gravity Claw</td><td class="r">2,000,000</td><td class="r">150</td><td>Shipping Container</td><td class="r">3,000,000</td><td class="r">15,000</td></tr>
+  </table></div>
+
+  <h3>Robots</h3>
+  <p>Robots follow the player, collect scrap automatically and add a coin multiplier. A player equips 3 at a time. Crates are bought with coins earned in the game, never directly with Robux. Each zone has its own crate with 5 robots, so version 1 ships with 20 robots.</p>
+  <div class="scroll"><table>
+    <tr><th>Rarity</th><th class="r">Crate odds</th><th class="r">Coin multiplier</th><th>Example</th></tr>
+    <tr><td>Common</td><td class="r">60%</td><td class="r">+10%</td><td>Rusty Roller</td></tr>
+    <tr><td>Uncommon</td><td class="r">28%</td><td class="r">+25%</td><td>Toaster Tank</td></tr>
+    <tr><td>Rare</td><td class="r">10%</td><td class="r">+60%</td><td>Forklift Fred</td></tr>
+    <tr><td>Epic</td><td class="r">1.9%</td><td class="r">+150%</td><td>Chrome Hound</td></tr>
+    <tr><td>Legendary</td><td class="r">0.1%</td><td class="r">+500%</td><td>Titan Crusher</td></tr>
+  </table></div>
+  <p>Three robots of the same kind merge into a "Polished" version worth double. This gives duplicate robots a use and keeps players opening crates.</p>
+
+  <h3>Rebirth</h3>
+  <ul>
+    <li>First rebirth costs 2,500,000 coins. Each later one costs 2.5 times the previous.</li>
+    <li>Resets coins, tools, backpacks and zone unlocks.</li>
+    <li>Keeps robots, gamepasses and the bot index.</li>
+    <li>Grants +50% coins permanently per rebirth, plus one extra robot slot at rebirths 1, 5 and 15.</li>
+    <li>Target: a new player reaches the first rebirth after 60 to 90 minutes of play.</li>
+  </ul>
+
+  <h3>Reasons to come back</h3>
+  <ul>
+    <li><strong>Daily reward:</strong> a 7-day streak, with a guaranteed Rare robot on day 7.</li>
+    <li><strong>Playtime gifts:</strong> free rewards at 5, 15, 30 and 60 minutes in a session.</li>
+    <li><strong>Codes:</strong> redeemable codes posted with each update.</li>
+    <li><strong>Bot index:</strong> a collection book with a reward for completing each zone.</li>
+    <li><strong>Leaderboards:</strong> most rebirths and most scrap collected, shown in the hub.</li>
+  </ul>
+
+  <h3>Left out of version 1 on purpose</h3>
+  <p>Trading, limited-time events, guilds, quests and a battle pass. Each one is a later update. Trading in particular needs anti-scam protections and should wait until the game has an audience.</p>
+</section>
+
+<section id="first10">
+  <h2><span class="n">4</span>The first 10 minutes</h2>
+  <p>Most players who leave do so in the first few minutes. This is the script a new player should experience, and playtests in week 7 are judged against it.</p>
+  <div class="scroll"><table>
+    <tr><th>Time</th><th>What the player does</th><th>What they get</th></tr>
+    <tr><td>0:00</td><td>Spawns facing the first scrap pile. An arrow points at it.</td><td>No menus, no reading.</td></tr>
+    <tr><td>0:20</td><td>Taps scrap. Backpack fills in about 25 taps.</td><td>Number pop-ups and sound on every tap.</td></tr>
+    <tr><td>1:00</td><td>Arrow leads to the crusher. Sells first load.</td><td>First coins, with a big coin burst.</td></tr>
+    <tr><td>2:00</td><td>Buys the Crowbar after the second load.</td><td>Three times the scrap per tap.</td></tr>
+    <tr><td>3:30</td><td>Tutorial hands over a free Starter Crate.</td><td>First robot, which starts collecting.</td></tr>
+    <tr><td>5:00</td><td>Claims the 5-minute playtime gift.</td><td>Coins, and awareness of the next gift.</td></tr>
+    <tr><td>6:00</td><td>Buys the Tool Crate backpack.</td><td>Longer trips between sells.</td></tr>
+    <tr><td>8:00</td><td>Sees the Auto Graveyard gate with a progress bar.</td><td>A clear goal that is about 60% done.</td></tr>
+    <tr><td>10:00</td><td>Unlocks the Auto Graveyard.</td><td>New area, new scrap, new crate.</td></tr>
+  </table></div>
+  <p>The shop button is visible from the start, but nothing prompts a Robux purchase until the player has unlocked the second zone.</p>
+</section>
+
+<section id="money">
+  <h2><span class="n">5</span>Monetisation</h2>
+  <p>The rule for every item: sell speed, convenience and looks. A free player must be able to reach everything in the game by playing.</p>
+
+  <h3>Gamepasses, bought once</h3>
+  <div class="scroll"><table>
+    <tr><th>Pass</th><th class="r">Price (Robux)</th><th>What it does</th></tr>
+    <tr><td>2x Coins</td><td class="r">349</td><td>Doubles all coins from selling.</td></tr>
+    <tr><td>Auto Collect</td><td class="r">299</td><td>The character collects nearby scrap without tapping.</td></tr>
+    <tr><td>Sell Anywhere</td><td class="r">199</td><td>A button that sells the backpack without walking to the crusher.</td></tr>
+    <tr><td>+3 Robot Slots</td><td class="r">249</td><td>Equip 6 robots instead of 3.</td></tr>
+    <tr><td>Lucky Crates</td><td class="r">399</td><td>Doubles the odds of Rare and above.</td></tr>
+    <tr><td>VIP</td><td class="r">249</td><td>Chat tag, gold trail, a VIP corner of the hub, +20% coins.</td></tr>
+  </table></div>
+
+  <h3>Developer products, bought any number of times</h3>
+  <div class="scroll"><table>
+    <tr><th>Product</th><th class="r">Price (Robux)</th><th>What it does</th></tr>
+    <tr><td>Coin pack, small to huge</td><td class="r">49 / 199 / 499 / 1,499</td><td>Coins scaled to the player's current zone, so packs stay useful late in the game.</td></tr>
+    <tr><td>2x Coins for 15 minutes</td><td class="r">39</td><td>Stacks with the 2x Coins pass.</td></tr>
+    <tr><td>Triple Luck for 15 minutes</td><td class="r">59</td><td>Better crate odds for a short window.</td></tr>
+    <tr><td>Skip to next zone</td><td class="r">99 to 499</td><td>Unlocks the next zone immediately. Price rises per zone.</td></tr>
+    <tr><td>Exclusive robot</td><td class="r">299</td><td>A named robot bought directly, with no randomness. One new one per update.</td></tr>
+    <tr><td>Starter Pack</td><td class="r">99</td><td>Offered once: a Rare robot, coins and a 15-minute boost. Priced low to convert a first purchase.</td></tr>
+  </table></div>
+
+  <h3>Other income</h3>
+  <ul>
+    <li><strong>Private servers:</strong> 100 Robux a month, for players who want the scrap to themselves.</li>
+    <li><strong>Creator Rewards:</strong> Roblox pays creators for bringing in and keeping active spenders. This programme replaced the older Premium Payouts in 2025. Read the current terms on the Creator Hub before counting on it.</li>
+    <li><strong>Immersive and rewarded video ads:</strong> add after launch, once daily players are steady. They have age and eligibility rules.</li>
+  </ul>
+
+  <div class="note"><strong>Rule to follow on crates.</strong> Roblox requires games to show the odds for any random item that can be bought with Robux, and some countries restrict them entirely. This plan sells crates for in-game coins only and shows the odds on every crate anyway. Because coin packs can be bought with Robux, check <code>PolicyService</code> for each player and hide what must be hidden where restrictions apply.</div>
+</section>
+
+<section id="tech">
+  <h2><span class="n">6</span>Technical plan</h2>
+  <h3>Project layout in Roblox Studio</h3>
+<pre>ServerScriptService
+  Services/
+    DataService        load, save, session lock
+    EconomyService     collect, sell, buy tools and backpacks
+    ZoneService        zone unlocks and gates
+    BotService         crates, equip, merge, auto-collect ticks
+    RebirthService     reset and multiplier
+    ShopService        gamepasses, ProcessReceipt, boosts
+    RewardService      daily streak, playtime gifts, codes
+    AnalyticsService   funnel and economy events
+ReplicatedStorage
+  Config/              Zones, Tools, Backpacks, Bots, Crates, Products
+  Remotes/             RemoteEvents and RemoteFunctions
+  Assets/              robot models, effects, sounds
+StarterPlayer/StarterPlayerScripts
+  Controllers/         Collect, BotFollow, UI, Effects, Tutorial
+StarterGui               HUD, Shop, Inventory, Index, Rebirth
+Workspace                Hub, zone maps, scrap spawn points</pre>
+
+  <h3>Player data</h3>
+  <p>Saved with a session-locking library such as ProfileStore, which prevents the duplicate-item bugs that come from a player's data loading on two servers at once.</p>
+<pre>{
+  coins = 0, scrap = 0, rebirths = 0,
+  tool = "MagnetGlove", backpack = "LunchSack",
+  zones = { "BackyardHeap" },
+  bots = { { id = "RustyRoller", polished = false, equipped = true } },
+  index = {}, boosts = {}, codesUsed = {},
+  daily = { streak = 0, lastClaim = 0 },
+  purchases = {},   -- receipt ids already granted
+  stats = { totalScrap = 0, playtime = 0 },
+  version = 1
+}</pre>
+
+  <h3>Rules that prevent cheating and lost purchases</h3>
+  <ul>
+    <li>The server decides every amount. The client only says "I tapped pile 14". The server checks distance, tap rate and backpack space, then works out the reward.</li>
+    <li>No remote accepts a coin value, a price or an item name without checking it against the config.</li>
+    <li><code>ProcessReceipt</code> grants the item, records the receipt id in saved data, and only then confirms the purchase. A crash in between must never lose or double a purchase.</li>
+    <li>Gamepass ownership is checked on the server with <code>UserOwnsGamePassAsync</code> and cached per session.</li>
+    <li>Crate rolls happen on the server. The client only plays the opening animation.</li>
+  </ul>
+
+  <h3>Performance on phones</h3>
+  <ul>
+    <li>Robots are simulated as numbers on the server. Their models and movement exist on each client only.</li>
+    <li>Scrap piles are reused from a pool, not created and destroyed.</li>
+    <li>Streaming is on, so far zones do not load on weak devices.</li>
+    <li>All buttons are thumb-sized and the HUD is tested at phone resolution first.</li>
+  </ul>
+
+  <h3>Assets</h3>
+  <p>Low-poly, bright, chunky shapes. Robots are built from a shared kit of parts so 20 robots need about 30 unique pieces. Avoid free Toolbox models with scripts inside them, since some contain backdoors.</p>
+</section>
+
+<section id="roadmap">
+  <h2><span class="n">7</span>Build roadmap</h2>
+  <p>Eight weeks at 10 to 15 hours a week. Tick items off as they are finished. Ticks are remembered in this browser only.</p>
+  <div id="weeks">
+    <div class="week"><b>Week 1</b><div><h3>Grey-box prototype</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c1"><span>Flat test map with scrap piles and a crusher</span></label></li>
+      <li><label><input type="checkbox" id="c2"><span>Tap to collect, backpack limit, sell for coins</span></label></li>
+      <li><label><input type="checkbox" id="c3"><span>Basic HUD showing coins and backpack</span></label></li>
+    </ul></div></div>
+    <div class="week"><b>Week 2</b><div><h3>Saving and upgrades</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c4"><span>DataService with session locking</span></label></li>
+      <li><label><input type="checkbox" id="c5"><span>Tool and backpack shops driven by config</span></label></li>
+      <li><label><input type="checkbox" id="c6"><span>Zone gate and the second zone</span></label></li>
+    </ul></div></div>
+    <div class="week"><b>Week 3</b><div><h3>Robots</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c7"><span>Crates with server-side rolls and visible odds</span></label></li>
+      <li><label><input type="checkbox" id="c8"><span>Inventory, equip, follow and auto-collect</span></label></li>
+      <li><label><input type="checkbox" id="c9"><span>Merge three into a Polished robot</span></label></li>
+    </ul></div></div>
+    <div class="week"><b>Week 4</b><div><h3>Full progression</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c10"><span>Zones three and four</span></label></li>
+      <li><label><input type="checkbox" id="c11"><span>Rebirth</span></label></li>
+      <li><label><input type="checkbox" id="c12"><span>First balance pass against the 60 to 90 minute rebirth target</span></label></li>
+    </ul></div></div>
+    <div class="week"><b>Week 5</b><div><h3>Shop and retention</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c13"><span>Gamepasses, developer products and receipt handling</span></label></li>
+      <li><label><input type="checkbox" id="c14"><span>Daily reward, playtime gifts and codes</span></label></li>
+      <li><label><input type="checkbox" id="c15"><span>Tutorial arrows for the first 10 minutes</span></label></li>
+    </ul></div></div>
+    <div class="week"><b>Week 6</b><div><h3>Art and feel</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c16"><span>Final maps for four zones and the hub</span></label></li>
+      <li><label><input type="checkbox" id="c17"><span>20 robot models, effects and sounds</span></label></li>
+      <li><label><input type="checkbox" id="c18"><span>Phone layout and performance pass</span></label></li>
+    </ul></div></div>
+    <div class="week"><b>Week 7</b><div><h3>Closed test</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c19"><span>5 to 10 testers play from a fresh save while you watch</span></label></li>
+      <li><label><input type="checkbox" id="c20"><span>Test every purchase in Studio and on a live private build</span></label></li>
+      <li><label><input type="checkbox" id="c21"><span>Fix bugs, rebalance, add analytics events</span></label></li>
+    </ul></div></div>
+    <div class="week"><b>Week 8</b><div><h3>Launch</h3><ul class="checks">
+      <li><label><input type="checkbox" id="c22"><span>Icon, three thumbnails, game description</span></label></li>
+      <li><label><input type="checkbox" id="c23"><span>Publish, set a launch code, start a small ad test</span></label></li>
+      <li><label><input type="checkbox" id="c24"><span>Watch the numbers daily and patch fast</span></label></li>
+    </ul></div></div>
+  </div>
+</section>
+
+<section id="launch">
+  <h2><span class="n">8</span>Launch and growth</h2>
+  <ul>
+    <li><strong>Icon:</strong> one large robot face, bright background, no small text. Make three versions and test which gets more clicks.</li>
+    <li><strong>Title:</strong> include an update tag, such as "[NEW] Scrap Bots Simulator".</li>
+    <li><strong>Ads:</strong> start with a small sponsored-ad budget to get the first few hundred players. Raise it only if day-1 return rate is above target.</li>
+    <li><strong>Community:</strong> a Roblox group with a join reward in the game, and a place to post codes.</li>
+    <li><strong>Update rhythm:</strong> something new every one to two weeks for the first two months.</li>
+  </ul>
+  <h3>First four updates</h3>
+  <div class="scroll"><table>
+    <tr><th>Update</th><th>Content</th><th>New thing to sell</th></tr>
+    <tr><td>1</td><td>Rocket Boneyard zone, 5 robots</td><td>Exclusive robot</td></tr>
+    <tr><td>2</td><td>Quests and a daily quest board</td><td>Quest reroll</td></tr>
+    <tr><td>3</td><td>Robot upgrades and enchant-style perks</td><td>Perk reroll tokens</td></tr>
+    <tr><td>4</td><td>Limited-time event zone</td><td>Event pass</td></tr>
+  </table></div>
+</section>
+
+<section id="numbers">
+  <h2><span class="n">9</span>Targets and money</h2>
+  <h3>Health targets after launch</h3>
+  <div class="scroll"><table>
+    <tr><th>Measure</th><th class="r">Target</th><th>If it is below target</th></tr>
+    <tr><td>Players who return the next day</td><td class="r">20% or more</td><td>Rework the first 10 minutes.</td></tr>
+    <tr><td>Players who return after 7 days</td><td class="r">5% or more</td><td>Add longer goals and daily reasons to return.</td></tr>
+    <tr><td>Average session</td><td class="r">15 minutes or more</td><td>Check where players quit in the funnel.</td></tr>
+    <tr><td>Tutorial completion</td><td class="r">70% or more</td><td>Shorten or simplify the tutorial.</td></tr>
+    <tr><td>Players who buy anything</td><td class="r">1% to 3%</td><td>Review prices and when the shop is shown.</td></tr>
+  </table></div>
+  <p>These are goals to aim for, not measured results. Roblox shows all of them in the Creator Hub analytics.</p>
+
+  <h3>What different sizes could earn</h3>
+  <p>Roblox keeps 30% of each gamepass and developer product sale. Robux convert to cash through DevEx. The rate used below is US$0.0038 per Robux and the minimum cash-out is 30,000 earned Robux. Confirm both on the DevEx page, since they change.</p>
+  <div class="scroll"><table>
+    <tr><th>Scenario</th><th class="r">Daily players</th><th class="r">Robux spent per player per day</th><th class="r">Monthly Robux after 30% fee</th><th class="r">Monthly US$</th></tr>
+    <tr><td>Small</td><td class="r">200</td><td class="r">1.5</td><td class="r">6,300</td><td class="r">$24</td></tr>
+    <tr><td>Steady</td><td class="r">1,000</td><td class="r">2.0</td><td class="r">42,000</td><td class="r">$160</td></tr>
+    <tr><td>Strong</td><td class="r">5,000</td><td class="r">3.0</td><td class="r">315,000</td><td class="r">$1,197</td></tr>
+  </table></div>
+  <p>These rows are arithmetic on assumed inputs, not forecasts. Most new games stay below the small row. The table shows that income depends almost entirely on daily players, so getting players to return matters more than adding shop items.</p>
+</section>
+
+<section id="risks">
+  <h2><span class="n">10</span>Risks</h2>
+  <div class="scroll"><table>
+    <tr><th>Risk</th><th>What to do about it</th></tr>
+    <tr><td>Nobody finds the game</td><td>Budget for ads from the start. Test icons. Launch on a Friday.</td></tr>
+    <tr><td>Players leave in the first minutes</td><td>Watch real testers in week 7. Measure each tutorial step.</td></tr>
+    <tr><td>Data loss or duplicated items</td><td>Session-locked saving. Test leaving and rejoining quickly.</td></tr>
+    <tr><td>Exploiters inflate coins</td><td>Server decides all values. Rate limits on every remote.</td></tr>
+    <tr><td>Scope grows and launch slips</td><td>Hold to the version 1 list. Everything else goes on the update list.</td></tr>
+    <tr><td>Economy inflates after rebirths</td><td>All numbers in config. Review earn rates weekly from analytics.</td></tr>
+    <tr><td>Breaking a Roblox rule</td><td>Read the Community Standards and monetisation policies before week 5.</td></tr>
+  </table></div>
+</section>
+
+<section id="decide">
+  <h2><span class="n">11</span>Decisions needed before building</h2>
+  <p>The plan assumes an answer for each. Change any of them and the plan adjusts.</p>
+  <div class="scroll"><table>
+    <tr><th>Question</th><th>Assumed in this plan</th></tr>
+    <tr><td>Is the scrapyard and robots theme the one to build?</td><td>Yes</td></tr>
+    <tr><td>Who is building it?</td><td>One person doing scripting, building and UI</td></tr>
+    <tr><td>How many hours a week are available?</td><td>10 to 15</td></tr>
+    <tr><td>Is there a budget for ads?</td><td>A small test budget at launch</td></tr>
+    <tr><td>Will 3D models be made or bought?</td><td>Made in Studio from a shared parts kit</td></tr>
+    <tr><td>How much Luau scripting experience is there?</td><td>Some. If none, add two weeks to the roadmap.</td></tr>
+  </table></div>
+</section>
+
+<footer>Draft plan. Prices, odds and costs are starting values for balancing. Roblox fees, payout rates and policies should be confirmed on the Creator Hub before launch.</footer>
+</div>
+
+<script>
+(function(){
+  var KEY="scrapbots-plan-checks", state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){}
+  document.querySelectorAll("#weeks input[type=checkbox]").forEach(function(box){
+    if(state[box.id])box.checked=true;
+    box.addEventListener("change",function(){
+      state[box.id]=box.checked;
+      try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
+    });
+  });
+})();
+</script>
